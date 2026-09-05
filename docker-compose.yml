@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: uzhavan-ai-service
+    ports:
+      - "8000:8000"
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: uzhavan-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - AI_SERVICE_URL=http://ai-service:8000
+      - JWT_SECRET=uzhavan_connect_production_secret_2026
+    depends_on:
+      - ai-service
+    restart: always
