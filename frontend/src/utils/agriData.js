@@ -209,6 +209,84 @@ export const CROP_NAME_I18N = {
   coconut: { en: "Pollachi Farm Coconut", ta: "பொள்ளாச்சி தேங்காய் (Coconut)" },
 };
 
+export const BASE_CROP_PRICES = {
+  // Fruits
+  mango: { min: 55, max: 66, avg: 60 },
+  raw_mango: { min: 36, max: 44, avg: 40 },
+  "raw mango": { min: 36, max: 44, avg: 40 },
+  banana: { min: 26, max: 34, avg: 30 },
+  guava: { min: 30, max: 40, avg: 35 },
+  papaya: { min: 24, max: 32, avg: 28 },
+  pomegranate: { min: 80, max: 100, avg: 90 },
+  jackfruit: { min: 38, max: 50, avg: 45 },
+  watermelon: { min: 16, max: 24, avg: 20 },
+
+  // Fresh Vegetables
+  tomato: { min: 24, max: 28, avg: 26 },
+  brinjal: { min: 28, max: 35, avg: 32 },
+  eggplant: { min: 28, max: 35, avg: 32 },
+  onion: { min: 38, max: 46, avg: 42 },
+  carrot: { min: 34, max: 42, avg: 38 },
+  cabbage: { min: 18, max: 25, avg: 22 },
+  potato: { min: 25, max: 32, avg: 28 },
+  beans: { min: 48, max: 60, avg: 54 },
+  okra: { min: 30, max: 38, avg: 35 },
+  ladies_finger: { min: 30, max: 38, avg: 35 },
+  "ladies finger": { min: 30, max: 38, avg: 35 },
+  ladyfinger: { min: 30, max: 38, avg: 35 },
+  drumstick: { min: 42, max: 55, avg: 48 },
+  chilli: { min: 40, max: 50, avg: 45 },
+  beetroot: { min: 32, max: 40, avg: 36 },
+  coconut: { min: 22, max: 28, avg: 25 },
+  broccoli: { min: 58, max: 72, avg: 65 },
+
+  // Tubers
+  yam: { min: 40, max: 50, avg: 45 },
+  "elephant foot yam": { min: 40, max: 50, avg: 45 },
+  tapioca: { min: 28, max: 36, avg: 32 },
+  sweet_potato: { min: 34, max: 42, avg: 38 },
+  colocasia: { min: 38, max: 46, avg: 42 },
+
+  // Keerai & Greens
+  murungai_keerai: { min: 18, max: 24, avg: 20 },
+  agathi_keerai: { min: 18, max: 25, avg: 22 },
+  siru_keerai: { min: 15, max: 20, avg: 18 },
+  arai_keerai: { min: 15, max: 20, avg: 18 },
+  palak_keerai: { min: 22, max: 28, avg: 25 },
+  manathakkali_keerai: { min: 18, max: 25, avg: 22 },
+  vallarai_keerai: { min: 24, max: 32, avg: 28 },
+  vellarai_keerai: { min: 24, max: 32, avg: 28 },
+  ponnanganni_keerai: { min: 20, max: 28, avg: 24 },
+  ponnagannni_keerai: { min: 20, max: 28, avg: 24 },
+  vendhaya_keerai: { min: 16, max: 22, avg: 18 },
+
+  // South Nell & Grains
+  ponni_rice: { min: 34, max: 42, avg: 38 },
+  seeraga_samba: { min: 78, max: 92, avg: 85 },
+  thooyamalli: { min: 58, max: 72, avg: 65 },
+  karuppu_kavuni: { min: 108, max: 130, avg: 120 },
+  mappillai_samba: { min: 68, max: 82, avg: 75 },
+  ragi: { min: 38, max: 46, avg: 42 },
+  thinai: { min: 48, max: 60, avg: 55 },
+  black_gram: { min: 86, max: 104, avg: 95 },
+  "black gram": { min: 86, max: 104, avg: 95 },
+  urad_dal: { min: 86, max: 104, avg: 95 },
+
+  // Banana By-Products
+  banana_chips: { min: 145, max: 175, avg: 160 },
+  banana_stem: { min: 20, max: 28, avg: 25 },
+  banana_flower: { min: 25, max: 35, avg: 30 },
+  banana_leaf: { min: 70, max: 90, avg: 80 },
+  banana_fiber: { min: 135, max: 165, avg: 150 },
+};
+
+export function getCropBaselinePrice(cropName) {
+  if (!cropName) return { min: 24, max: 28, avg: 26 };
+  const cleanKey = cropName.toLowerCase().trim().replace(/\s+/g, "_");
+  const rawKey = cropName.toLowerCase().trim();
+  return BASE_CROP_PRICES[cleanKey] || BASE_CROP_PRICES[rawKey] || { min: 30, max: 40, avg: 35 };
+}
+
 export function getCropDisplayName(cropName, lang = "en") {
   if (!cropName) return lang === "ta" ? "விளைபொருள்" : "Crop";
   const cleanKey = cropName.toLowerCase().trim().replace(/\s+/g, "_");
@@ -305,3 +383,61 @@ export const TRANSLATIONS = {
     nav_logout: "வெளியேறு",
   },
 };
+
+export const ALL_SUPPORTED_CROPS = [
+  // Fruits
+  { id: "mango", name: "Mango (மாம்பழம்)", category: "fruits" },
+  { id: "raw_mango", name: "Raw Mango (பச்சை மாங்காய்)", category: "fruits" },
+  { id: "banana", name: "Banana (வாழைப்பழம்)", category: "fruits" },
+  { id: "guava", name: "Guava (கொய்யா)", category: "fruits" },
+  { id: "papaya", name: "Papaya (பப்பாளி)", category: "fruits" },
+  { id: "pomegranate", name: "Pomegranate (மாதுளை)", category: "fruits" },
+  { id: "jackfruit", name: "Jackfruit (பலாப்பழம்)", category: "fruits" },
+  { id: "watermelon", name: "Watermelon (தர்பூசணி)", category: "fruits" },
+
+  // Vegetables
+  { id: "tomato", name: "Tomato (தக்காளி)", category: "vegetables" },
+  { id: "brinjal", name: "Brinjal (கத்தரிக்காய்)", category: "vegetables" },
+  { id: "onion", name: "Onion (வெங்காயம்)", category: "vegetables" },
+  { id: "ladies_finger", name: "Okra / Ladies Finger (வெண்டைக்காய்)", category: "vegetables" },
+  { id: "drumstick", name: "Drumstick (முருங்கைக்காய்)", category: "vegetables" },
+  { id: "carrot", name: "Carrot (கேரட்)", category: "vegetables" },
+  { id: "cabbage", name: "Cabbage (முட்டைகோஸ்)", category: "vegetables" },
+  { id: "potato", name: "Potato (உருளைக்கிழங்கு)", category: "vegetables" },
+  { id: "beans", name: "Beans (பீன்ஸ்)", category: "vegetables" },
+  { id: "chilli", name: "Chilli (பச்சை மிளகாய்)", category: "vegetables" },
+  { id: "beetroot", name: "Beetroot (பீட்ரூட்)", category: "vegetables" },
+  { id: "coconut", name: "Coconut (தேங்காய்)", category: "vegetables" },
+
+  // Tubers
+  { id: "yam", name: "Yam (சேனைக்கிழங்கு)", category: "tubers" },
+  { id: "tapioca", name: "Tapioca (மரவள்ளிக்கிழங்கு)", category: "tubers" },
+  { id: "sweet_potato", name: "Sweet Potato (சர்க்கரைவள்ளி)", category: "tubers" },
+  { id: "colocasia", name: "Colocasia (சேப்பங்கிழங்கு)", category: "tubers" },
+
+  // Keerai & Greens
+  { id: "murungai_keerai", name: "Murungai Keerai (முருங்கைக்கீரை)", category: "keerai" },
+  { id: "agathi_keerai", name: "Agathi Keerai (அகத்திக்கீரை)", category: "keerai" },
+  { id: "siru_keerai", name: "Siru Keerai (சிறுகீரை)", category: "keerai" },
+  { id: "palak_keerai", name: "Palak Keerai (பாலக்கீரை)", category: "keerai" },
+  { id: "vallarai_keerai", name: "Vallarai Keerai (வல்லாரை)", category: "keerai" },
+  { id: "ponnanganni_keerai", name: "Ponnanganni (பொன்னாங்கண்ணி)", category: "keerai" },
+
+  // South Nell & Grains
+  { id: "ponni_rice", name: "Ponni Rice (பொன்னி நெல்)", category: "south_nell" },
+  { id: "seeraga_samba", name: "Seeraga Samba (சீரக சம்பா)", category: "south_nell" },
+  { id: "thooyamalli", name: "Thooyamalli (தூயமல்லி)", category: "south_nell" },
+  { id: "karuppu_kavuni", name: "Karuppu Kavuni (கருப்பு கவுனி)", category: "south_nell" },
+  { id: "mappillai_samba", name: "Mappillai Samba (மாப்பிள்ளை சம்பா)", category: "south_nell" },
+  { id: "ragi", name: "Ragi (கேழ்வரகு)", category: "south_nell" },
+  { id: "thinai", name: "Thinai (தினை)", category: "south_nell" },
+  { id: "black_gram", name: "Black Gram (கருப்பு உளுந்து)", category: "south_nell" },
+
+  // Banana by-products
+  { id: "banana_chips", name: "Banana Chips (வாழைக்காய் சிப்ஸ்)", category: "banana_byproducts" },
+  { id: "banana_stem", name: "Banana Stem (வாழைத்தண்டு)", category: "banana_byproducts" },
+  { id: "banana_flower", name: "Banana Flower (வாழைப்பூ)", category: "banana_byproducts" },
+  { id: "banana_leaf", name: "Banana Leaf (வாழை இலை)", category: "banana_byproducts" },
+  { id: "banana_fiber", name: "Banana Fiber (வாழை நார்)", category: "banana_byproducts" }
+];
+

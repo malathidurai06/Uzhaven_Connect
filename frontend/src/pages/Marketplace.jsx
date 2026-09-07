@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import api from "../api";
 import { useApp } from "../context/AppContext";
 import { CROP_IMAGES, CROP_ICONS, AGRI_CATEGORIES, getCropDisplayName } from "../utils/agriData";
@@ -90,13 +90,14 @@ const FEATURED_LOCAL_FARMERS = [
 
 export default function Marketplace() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, showToast, lang } = useApp();
 
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedVillage, setSelectedVillage] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(location.state?.crop_name || "");
   const [orderQty, setOrderQty] = useState({});
   const [orderingId, setOrderingId] = useState(null);
 
@@ -107,13 +108,13 @@ export default function Marketplace() {
   const [bookingListing, setBookingListing] = useState(null);
   const [paymentChoice, setPaymentChoice] = useState("direct_handshake");
 
-  const fetchListings = async () => {
+  const fetchListings = async (search = searchQuery, category = selectedCategory) => {
     setLoading(true);
     try {
       const res = await api.get("/listings", {
         params: {
-          category: selectedCategory !== "all" ? selectedCategory : undefined,
-          search: searchQuery || undefined,
+          category: category !== "all" ? category : undefined,
+          search: search || undefined,
         },
       });
       setListings(res.data || []);
@@ -125,12 +126,17 @@ export default function Marketplace() {
   };
 
   useEffect(() => {
-    fetchListings();
-  }, [selectedCategory]);
+    if (location.state?.crop_name) {
+      setSearchQuery(location.state.crop_name);
+      fetchListings(location.state.crop_name, selectedCategory);
+    } else {
+      fetchListings(searchQuery, selectedCategory);
+    }
+  }, [location.state, selectedCategory]);
 
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    fetchListings();
+    if (e) e.preventDefault();
+    fetchListings(searchQuery, selectedCategory);
   };
 
   const handleQtyChange = (id, delta, maxAvailable) => {

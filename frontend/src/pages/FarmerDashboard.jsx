@@ -57,73 +57,78 @@ export default function FarmerDashboard() {
         api.get("/orders/mine").catch(() => ({ data: [] })),
       ]);
 
-      let currentListings = listingsRes.data;
-      if (!currentListings || currentListings.length === 0) {
-        currentListings = [
-          {
-            id: 101,
-            crop_name: "yam",
-            quantity_kg: 200,
-            price_per_kg: 45,
-            ai_suggested_price_min: 42,
-            ai_suggested_price_max: 48,
-            freshness_tag: "Grade A+ Fresh (3h ago)",
-            status: "active",
-            created_at: new Date().toISOString(),
-          },
-          {
-            id: 102,
-            crop_name: "murungai_keerai",
-            quantity_kg: 50,
-            price_per_kg: 20,
-            ai_suggested_price_min: 18,
-            ai_suggested_price_max: 22,
-            freshness_tag: "Grade A+ Fresh (1h ago)",
-            status: "active",
-            created_at: new Date().toISOString(),
-          },
-          {
-            id: 103,
-            crop_name: "brinjal",
-            quantity_kg: 80,
-            price_per_kg: 32,
-            ai_suggested_price_min: 30,
-            ai_suggested_price_max: 35,
-            freshness_tag: "Grade A+ Fresh (4h ago)",
-            status: "active",
-            created_at: new Date().toISOString(),
-          }
-        ];
-      }
+      let currentListings = Array.isArray(listingsRes.data) ? listingsRes.data : [];
+      let currentOrders = Array.isArray(ordersRes.data) ? ordersRes.data : [];
 
-      let currentOrders = ordersRes.data;
-      if (!currentOrders || currentOrders.length === 0) {
-        currentOrders = [
-          {
-            id: 201,
-            crop_name: "yam",
-            buyer_name: "Priya S. (Tirunelveli Town)",
-            buyer_phone: "9876543220",
-            quantity_kg: 10,
-            total_price: 450,
-            payment_status: "pending_farm_handover",
-            order_status: "confirmed",
-            delivery_mode: "Farm Gate Direct Pickup",
-            created_at: new Date(Date.now() - 1800000).toISOString(),
-          },
-          {
-            id: 202,
-            crop_name: "brinjal",
-            buyer_name: "Hotel Royal Residency & Mess",
-            buyer_phone: "9876543230",
-            quantity_kg: 40,
-            total_price: 1280,
-            payment_status: "paid",
-            order_status: "placed",
-            delivery_mode: "Local Transporter Dispatch",
-            created_at: new Date(Date.now() - 7200000).toISOString(),
-          }
-        ];
+      // ONLY for the pre-seeded Demo account (Murugan K. phone: 9876543210), load demo mock items if empty
+      const isDemoAccount = user?.phone === "9876543210";
+      if (isDemoAccount) {
+        if (currentListings.length === 0) {
+          currentListings = [
+            {
+              id: 101,
+              crop_name: "yam",
+              quantity_kg: 200,
+              price_per_kg: 45,
+              ai_suggested_price_min: 42,
+              ai_suggested_price_max: 48,
+              freshness_tag: "Grade A+ Fresh (3h ago)",
+              status: "active",
+              created_at: new Date().toISOString(),
+            },
+            {
+              id: 102,
+              crop_name: "murungai_keerai",
+              quantity_kg: 50,
+              price_per_kg: 20,
+              ai_suggested_price_min: 18,
+              ai_suggested_price_max: 22,
+              freshness_tag: "Grade A+ Fresh (1h ago)",
+              status: "active",
+              created_at: new Date().toISOString(),
+            },
+            {
+              id: 103,
+              crop_name: "brinjal",
+              quantity_kg: 80,
+              price_per_kg: 32,
+              ai_suggested_price_min: 30,
+              ai_suggested_price_max: 35,
+              freshness_tag: "Grade A+ Fresh (4h ago)",
+              status: "active",
+              created_at: new Date().toISOString(),
+            }
+          ];
+        }
+
+        if (currentOrders.length === 0) {
+          currentOrders = [
+            {
+              id: 201,
+              crop_name: "yam",
+              buyer_name: "Priya S. (Tirunelveli Town)",
+              buyer_phone: "9876543220",
+              quantity_kg: 10,
+              total_price: 450,
+              payment_status: "pending_farm_handover",
+              order_status: "confirmed",
+              delivery_mode: "Farm Gate Direct Pickup",
+              created_at: new Date(Date.now() - 1800000).toISOString(),
+            },
+            {
+              id: 202,
+              crop_name: "brinjal",
+              buyer_name: "Hotel Royal Residency & Mess",
+              buyer_phone: "9876543230",
+              quantity_kg: 40,
+              total_price: 1280,
+              payment_status: "paid",
+              order_status: "placed",
+              delivery_mode: "Local Transporter Dispatch",
+              created_at: new Date(Date.now() - 7200000).toISOString(),
+            }
+          ];
+        }
       }
 
       setListings(currentListings);
@@ -181,8 +186,12 @@ export default function FarmerDashboard() {
   };
 
   // KPI Calculations
-  const totalKgSold = orders.reduce((sum, o) => sum + (o.quantity_kg || 0), 0) + 420;
-  const totalEarnings = orders.reduce((sum, o) => sum + (o.total_price || 0), 0) + 18500;
+  const isDemoMurugan = user?.phone === "9876543210";
+  const basePastKg = isDemoMurugan ? 420 : 0;
+  const basePastEarnings = isDemoMurugan ? 18500 : 0;
+
+  const totalKgSold = orders.reduce((sum, o) => sum + (o.quantity_kg || 0), 0) + basePastKg;
+  const totalEarnings = orders.reduce((sum, o) => sum + (o.total_price || 0), 0) + basePastEarnings;
   const directProfitGain = Math.round(totalEarnings * 0.28);
 
   return (
@@ -243,9 +252,9 @@ export default function FarmerDashboard() {
               <div style={{ color: "#d1fae5", margin: "4px 0 0", fontSize: "0.88rem", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                 <span>📍 {user?.village || "Alangulam, Tirunelveli District"}</span>
                 <span>•</span>
-                <span>🌾 3.5 Acres Thamirabarani Basin Soil</span>
+                <span>🌾 {user?.name || "Farmer"}'s Farm</span>
                 <span>•</span>
-                <span>💳 KCC: #TN-KCC-10948</span>
+                <span>💳 KCC: #TN-KCC-{user?.id ? user.id * 1042 : 10948}</span>
               </div>
             </div>
           </div>
@@ -546,8 +555,16 @@ export default function FarmerDashboard() {
         </div>
 
         {orders.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-            <p>No orders yet. Once nearby buyers place orders, they will appear here with direct contact actions.</p>
+          <div style={{ textAlign: "center", padding: "36px 20px", background: "#f8fafc", borderRadius: "12px", border: "1.5px dashed #cbd5e1" }}>
+            <div style={{ fontSize: "2.4rem", marginBottom: "8px" }}>📦</div>
+            <strong style={{ color: "#083320", fontSize: "1rem", display: "block", marginBottom: "4px" }}>
+              {lang === "ta" ? "புதிய ஆர்டர்கள் எதுவும் இல்லை" : "No incoming orders yet"}
+            </strong>
+            <span style={{ fontSize: "0.84rem", color: "#64748b" }}>
+              {lang === "ta" 
+                ? "நீங்கள் விளைபொருட்களை பட்டியலிட்டவுடன் அருகிலுள்ள நுகர்வோர் ஆர்டர்கள் இங்கு தோன்றும்."
+                : "Once you list harvest produce, direct orders from nearby buyers will appear here with WhatsApp / Call buttons."}
+            </span>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
@@ -558,7 +575,7 @@ export default function FarmerDashboard() {
 
               return (
                 <div 
-                  key={o.id}
+                  key={o.id} 
                   style={{
                     border: "1.5px solid #e2e8f0",
                     borderRadius: "12px",
@@ -648,53 +665,77 @@ export default function FarmerDashboard() {
           </Link>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "18px" }}>
-          {listings.map((l) => {
-            const cropKey = (l.crop_name || "yam").toLowerCase();
-            const cropImg = CROP_IMAGES[cropKey] || CROP_IMAGES.default;
-            const displayName = getCropDisplayName(l.crop_name, lang);
+        {listings.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "48px 24px", background: "#f8fafc", borderRadius: "14px", border: "2px dashed #cbd5e1" }}>
+            <div style={{ fontSize: "3.2rem", marginBottom: "12px" }}>🌾</div>
+            <h3 style={{ fontSize: "1.25rem", fontWeight: "800", color: "#083320", marginBottom: "6px" }}>
+              {lang === "ta" ? "நீங்கள் இன்னும் எந்த விளைபொருளையும் சேர்க்கவில்லை" : "No Harvest Crops Listed Yet"}
+            </h3>
+            <p style={{ color: "#64748b", fontSize: "0.88rem", maxWidth: "480px", margin: "0 auto 20px", lineHeight: "1.5" }}>
+              {lang === "ta" 
+                ? "உங்கள் முதல் விளைபொருளை புகைப்படம் அல்லது தமிழ் குரல் வழி மூலம் உடனே விற்பனைக்கு சேர்க்கலாம்."
+                : "List your first crop using 1-click photo or Tamil voice AI to start selling directly to local buyers."}
+            </p>
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+              <Link to="/list-crop" className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "0.92rem", fontWeight: "800", background: "#0f5132" }}>
+                <Plus size={16} />
+                <span>{lang === "ta" ? "🌾 முதல் பயிரை சேர்க்கவும் (List Crop)" : "Add First Crop"}</span>
+              </Link>
+              <Link to="/ai/voice-assistant" className="btn btn-outline" style={{ padding: "10px 20px", fontSize: "0.92rem", fontWeight: "700", borderColor: "#10b981", color: "#0f5132", background: "#f0fdf4" }}>
+                <Mic size={16} />
+                <span>{lang === "ta" ? "🎙️ குரல் வழி பேச (Voice AI)" : "Try Voice Listing"}</span>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "18px" }}>
+            {listings.map((l) => {
+              const cropKey = (l.crop_name || "yam").toLowerCase();
+              const cropImg = CROP_IMAGES[cropKey] || CROP_IMAGES.default;
+              const displayName = getCropDisplayName(l.crop_name, lang);
 
-            return (
-              <div 
-                key={l.id} 
-                style={{ 
-                  border: "1.5px solid #e2e8f0", 
-                  borderRadius: "12px", 
-                  overflow: "hidden", 
-                  background: "#fff",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between"
-                }}
-              >
-                <div style={{ position: "relative", height: "140px" }}>
-                  <img 
-                    src={cropImg} 
-                    alt={l.crop_name} 
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-                    onError={(e) => { e.currentTarget.src = "/images/crops/default.jpg"; }}
-                  />
-                  <span style={{ position: "absolute", top: "8px", left: "8px", background: "#0f5132", color: "#fff", fontSize: "0.72rem", fontWeight: "800", padding: "2px 8px", borderRadius: "20px" }}>
-                    {l.freshness_tag || "Grade A+ Fresh"}
-                  </span>
-                  <span style={{ position: "absolute", bottom: "8px", right: "8px", background: "#fff", color: "#0f5132", fontSize: "0.88rem", fontWeight: "800", padding: "3px 8px", borderRadius: "6px" }}>
-                    ₹{l.price_per_kg}/kg
-                  </span>
-                </div>
+              return (
+                <div 
+                  key={l.id} 
+                  style={{ 
+                    border: "1.5px solid #e2e8f0", 
+                    borderRadius: "12px", 
+                    overflow: "hidden", 
+                    background: "#fff",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between"
+                  }}
+                >
+                  <div style={{ position: "relative", height: "140px" }}>
+                    <img 
+                      src={cropImg} 
+                      alt={l.crop_name} 
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                      onError={(e) => { e.currentTarget.src = "/images/crops/default.jpg"; }}
+                    />
+                    <span style={{ position: "absolute", top: "8px", left: "8px", background: "#0f5132", color: "#fff", fontSize: "0.72rem", fontWeight: "800", padding: "2px 8px", borderRadius: "20px" }}>
+                      {l.freshness_tag || "Grade A+ Fresh"}
+                    </span>
+                    <span style={{ position: "absolute", bottom: "8px", right: "8px", background: "#fff", color: "#0f5132", fontSize: "0.88rem", fontWeight: "800", padding: "3px 8px", borderRadius: "6px" }}>
+                      ₹{l.price_per_kg}/kg
+                    </span>
+                  </div>
 
-                <div style={{ padding: "14px" }}>
-                  <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", color: "#083320" }}>
-                    {CROP_ICONS[cropKey] || "🌱"} {displayName}
-                  </h3>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "#64748b" }}>
-                    <span>Available Quantity:</span>
-                    <strong style={{ color: "#0f5132" }}>{l.quantity_kg} kg</strong>
+                  <div style={{ padding: "14px" }}>
+                    <h3 style={{ margin: "0 0 4px", fontSize: "1.1rem", color: "#083320" }}>
+                      {CROP_ICONS[cropKey] || "🌱"} {displayName}
+                    </h3>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "#64748b" }}>
+                      <span>Available Quantity:</span>
+                      <strong style={{ color: "#0f5132" }}>{l.quantity_kg} kg</strong>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
     </div>

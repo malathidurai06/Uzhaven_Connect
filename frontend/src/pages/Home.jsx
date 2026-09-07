@@ -466,13 +466,16 @@ export default function Home() {
             List your crop in under 60 seconds — with one tap or even by speaking in Tamil.
           </p>
           <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link to="/list-crop" className="btn-hero-primary">
+            <Link to="/register" className="btn-hero-primary" style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", boxShadow: "0 4px 14px rgba(16,185,129,0.4)" }}>
+              <span>✨ {lang === "ta" ? "இலவச பதிவு (Register Free)" : "Register Free"}</span>
+            </Link>
+            <Link to="/list-crop" className="btn-hero-secondary">
               <Sprout size={18} />
-              <span>List Crop Now</span>
+              <span>{lang === "ta" ? "பயிர் விற்க (List Crop)" : "List Crop Now"}</span>
             </Link>
             <Link to="/marketplace" className="btn-hero-secondary">
               <ShoppingBag size={18} />
-              <span>Browse Marketplace</span>
+              <span>{lang === "ta" ? "காய்கறி வாங்க (Browse Market)" : "Browse Marketplace"}</span>
             </Link>
           </div>
         </div>

@@ -15,7 +15,8 @@ import {
   User, 
   LogOut, 
   ChevronDown,
-  LayoutDashboard
+  LayoutDashboard,
+  UserPlus
 } from "lucide-react";
 
 export default function NavBar() {
@@ -182,7 +183,7 @@ export default function NavBar() {
             <span>{lang === "en" ? "தமிழ் (TA)" : "English (EN)"}</span>
           </button>
 
-          {/* User Status / Login */}
+          {/* User Status / Login & Register */}
           {user ? (
             <div 
               className="user-pill" 
@@ -199,9 +200,31 @@ export default function NavBar() {
               <span>{user.name.split(" ")[0]}</span>
             </div>
           ) : (
-            <Link to="/login" className="cta-login-btn">
-              {t("nav_login")}
-            </Link>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Link 
+                to="/register" 
+                className="cta-register-btn" 
+                style={{ 
+                  display: "inline-flex", 
+                  alignItems: "center", 
+                  gap: "6px", 
+                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", 
+                  color: "#ffffff", 
+                  padding: "7px 14px", 
+                  borderRadius: "8px", 
+                  fontWeight: "700", 
+                  textDecoration: "none", 
+                  fontSize: "0.84rem", 
+                  boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)" 
+                }}
+              >
+                <UserPlus size={14} />
+                <span>{lang === "ta" ? "✨ புதிய பதிவு" : "✨ Register"}</span>
+              </Link>
+              <Link to="/login" className="cta-login-btn">
+                {t("nav_login")}
+              </Link>
+            </div>
           )}
         </div>
       </nav>

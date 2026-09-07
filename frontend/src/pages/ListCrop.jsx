@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api";
 import { useApp } from "../context/AppContext";
-import { CROP_IMAGES, CROP_ICONS, CROP_NAME_I18N, getCropDisplayName, AGRI_CATEGORIES } from "../utils/agriData";
+import { CROP_IMAGES, CROP_ICONS, CROP_NAME_I18N, getCropDisplayName, AGRI_CATEGORIES, getCropBaselinePrice } from "../utils/agriData";
 import { parseTamilVoiceCommand } from "../utils/tamilVoiceParser";
 import { 
   Sprout, 
@@ -387,27 +387,43 @@ export default function ListCrop() {
   };
 
   // Auto-fetch AI price suggestion when crop or region changes
-  const fetchPriceSuggestion = async () => {
+  const fetchPriceSuggestion = async (targetCrop = form.crop_name, targetRegion = form.region) => {
     setLoadingSuggestion(true);
+    const baseline = getCropBaselinePrice(targetCrop);
     try {
       const res = await api.post("/listings/price-suggestion", {
-        crop_name: form.crop_name,
-        region: form.region,
+        crop_name: targetCrop,
+        region: targetRegion,
       });
-      setSuggestion(res.data);
-      if (res.data.predicted_min) {
+      if (res.data && res.data.predicted_min) {
+        setSuggestion(res.data);
         const mid = Math.round((res.data.predicted_min + res.data.predicted_max) / 2);
         setForm((prev) => ({ ...prev, price_per_kg: mid }));
+      } else {
+        setSuggestion({ predicted_min: baseline.min, predicted_max: baseline.max });
+        setForm((prev) => ({ ...prev, price_per_kg: baseline.avg }));
       }
     } catch (err) {
-      setSuggestion({ predicted_min: 25, predicted_max: 35 });
+      setSuggestion({ predicted_min: baseline.min, predicted_max: baseline.max });
+      setForm((prev) => ({ ...prev, price_per_kg: baseline.avg }));
     }
     setLoadingSuggestion(false);
   };
 
   useEffect(() => {
-    fetchPriceSuggestion();
-  }, [form.crop_name, form.region]);
+    if (location.state?.crop_name) {
+      setForm((prev) => ({
+        ...prev,
+        crop_name: location.state.crop_name,
+        region: location.state.region || prev.region,
+        quantity_kg: location.state.quantity_kg || prev.quantity_kg,
+        price_per_kg: location.state.price_per_kg || prev.price_per_kg,
+      }));
+      fetchPriceSuggestion(location.state.crop_name, location.state.region || form.region);
+    } else {
+      fetchPriceSuggestion(form.crop_name, form.region);
+    }
+  }, [location.state, form.crop_name, form.region]);
 
   const handleUseGps = () => {
     if ("geolocation" in navigator) {

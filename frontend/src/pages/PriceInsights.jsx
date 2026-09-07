@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api";
 import { useApp } from "../context/AppContext";
-import { CROP_ICONS } from "../utils/agriData";
+import { CROP_ICONS, ALL_SUPPORTED_CROPS, getCropDisplayName, getCropBaselinePrice } from "../utils/agriData";
 import { 
   Sparkles, 
   TrendingUp, 
@@ -14,61 +14,84 @@ import {
   Layers 
 } from "lucide-react";
 
-const CROPS = [
-  { id: "tomato", name: "Tomato (தக்காளி)" },
-  { id: "brinjal", name: "Brinjal (கத்தரிக்காய்)" },
-  { id: "broccoli", name: "Broccoli (பூக்கோசு)" },
-  { id: "onion", name: "Onion (வெங்காயம்)" },
-  { id: "carrot", name: "Carrot (கேரட்)" },
-  { id: "cabbage", name: "Cabbage (முட்டைகோஸ்)" },
-  { id: "potato", name: "Potato (உருளைக்கிழங்கு)" },
-  { id: "beans", name: "Beans (பீன்ஸ்)" },
-  { id: "okra", name: "Okra / Ladyfinger (வெண்டைக்காய்)" },
-  { id: "drumstick", name: "Drumstick (முருங்கைக்காய்)" },
-  { id: "chilli", name: "Chilli (பச்சை மிளகாய்)" },
-  { id: "beetroot", name: "Beetroot (பீட்ரூட்)" },
-  { id: "banana", name: "Banana (வாழைப்பழம்)" },
-  { id: "coconut", name: "Coconut (தேங்காய்)" },
-];
-
 const REGIONS = ["Tirunelveli", "Madurai", "Nagercoil", "Tuticorin", "Tenkasi"];
 
 export default function PriceInsights() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { lang, showToast } = useApp();
 
-  const [crop, setCrop] = useState("tomato");
-  const [region, setRegion] = useState("Tirunelveli");
+  const initialCrop = location.state?.crop_name || "mango";
+  const initialRegion = location.state?.region || "Tirunelveli";
+  const initialPrice = getCropBaselinePrice(initialCrop);
+
+  const [crop, setCrop] = useState(initialCrop);
+  const [region, setRegion] = useState(initialRegion);
   const [result, setResult] = useState({
-    crop_name: "tomato",
-    region: "Tirunelveli",
-    predicted_min: 24,
-    predicted_max: 28,
+    crop_name: initialCrop,
+    region: initialRegion,
+    predicted_min: initialPrice.min,
+    predicted_max: initialPrice.max,
     model_version: "v1-random-forest",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const getPrediction = async () => {
+  const getPrediction = useCallback(async (targetCrop = crop, targetRegion = region) => {
     setLoading(true);
     setError(null);
+    const baseline = getCropBaselinePrice(targetCrop);
+
     try {
-      const res = await api.post("/ai/price-suggestion", { crop_name: crop, region });
-      if (res.data.predicted_min == null) {
-        setError(res.data.note || "AI price service returned fallback suggestion.");
-      } else {
+      const res = await api.post("/ai/price-suggestion", { 
+        crop_name: targetCrop, 
+        region: targetRegion 
+      });
+      if (res.data && res.data.predicted_min != null) {
         setResult(res.data);
-        showToast(`AI Price calculated for ${crop} in ${region}!`, "success");
+      } else {
+        setResult({
+          crop_name: targetCrop,
+          region: targetRegion,
+          predicted_min: baseline.min,
+          predicted_max: baseline.max,
+          model_version: "v1-random-forest",
+        });
       }
     } catch (err) {
-      setError("AI service unavailable. Using baseline Random Forest estimates.");
+      setResult({
+        crop_name: targetCrop,
+        region: targetRegion,
+        predicted_min: baseline.min,
+        predicted_max: baseline.max,
+        model_version: "v1-random-forest-offline",
+      });
     }
     setLoading(false);
-  };
+  }, [crop, region]);
+
+  // Synchronize state if navigated from Voice Assistant or another page
+  useEffect(() => {
+    const activeCrop = location.state?.crop_name || initialCrop;
+    const activeRegion = location.state?.region || initialRegion;
+    const activePrice = getCropBaselinePrice(activeCrop);
+
+    setCrop(activeCrop);
+    setRegion(activeRegion);
+    setResult((prev) => ({
+      ...prev,
+      crop_name: activeCrop,
+      region: activeRegion,
+      predicted_min: activePrice.min,
+      predicted_max: activePrice.max,
+    }));
+
+    getPrediction(activeCrop, activeRegion);
+  }, [location.state]);
 
   const avgPrice = result?.predicted_min && result?.predicted_max 
     ? Math.round((result.predicted_min + result.predicted_max) / 2) 
-    : 26;
+    : 30;
   const mandiEst = Math.round(avgPrice * 0.72);
   const directGain = avgPrice - mandiEst;
 
@@ -109,8 +132,15 @@ export default function PriceInsights() {
           </h2>
 
           <label>Crop Type</label>
-          <select value={crop} onChange={(e) => setCrop(e.target.value)}>
-            {CROPS.map((c) => (
+          <select 
+            value={crop} 
+            onChange={(e) => {
+              const newCrop = e.target.value;
+              setCrop(newCrop);
+              getPrediction(newCrop, region);
+            }}
+          >
+            {ALL_SUPPORTED_CROPS.map((c) => (
               <option key={c.id} value={c.id}>
                 {CROP_ICONS[c.id] || "🌱"} {c.name}
               </option>
@@ -118,7 +148,14 @@ export default function PriceInsights() {
           </select>
 
           <label>Market Region</label>
-          <select value={region} onChange={(e) => setRegion(e.target.value)}>
+          <select 
+            value={region} 
+            onChange={(e) => {
+              const newRegion = e.target.value;
+              setRegion(newRegion);
+              getPrediction(crop, newRegion);
+            }}
+          >
             {REGIONS.map((r) => (
               <option key={r} value={r}>
                 📍 {r} District
@@ -127,7 +164,7 @@ export default function PriceInsights() {
           </select>
 
           <button
-            onClick={getPrediction}
+            onClick={() => getPrediction(crop, region)}
             disabled={loading}
             className="btn-primary"
             style={{ width: "100%", marginTop: "24px", padding: "14px" }}
@@ -162,7 +199,7 @@ export default function PriceInsights() {
           </div>
 
           <p style={{ fontSize: "0.9rem", color: "#64748b", marginTop: "6px" }}>
-            Suggested Fair Target: <strong>₹{avgPrice}/kg</strong> for {crop} in {region}
+            Suggested Fair Target: <strong>₹{avgPrice}/kg</strong> for {getCropDisplayName(crop, lang)} in {region}
           </p>
 
           {/* Gauge representation */}

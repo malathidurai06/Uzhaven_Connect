@@ -22,6 +22,13 @@ import {
 
 const SAMPLES = [
   { 
+    ta: "மாம்பழம் விலை என்ன?", 
+    en: "What is today's mango market price?",
+    type: "check_price",
+    crop: "mango",
+    qty: null
+  },
+  { 
     ta: "அஞ்சு கிலோ வெண்டிங்காக எவ்ளோ?", 
     en: "What is the price of 5 kg ladies finger / okra?",
     type: "check_price",
@@ -289,9 +296,18 @@ export default function VoiceAssistant() {
         },
       });
     } else if (parsedData.intent === "check_price") {
-      navigate("/ai/price-insights");
+      navigate("/ai/price-insights", {
+        state: {
+          crop_name: parsedData.crop_name || "mango",
+          region: "Tirunelveli",
+        },
+      });
     } else if (parsedData.intent === "buy_crop") {
-      navigate("/marketplace");
+      navigate("/marketplace", {
+        state: {
+          crop_name: parsedData.crop_name,
+        },
+      });
     } else {
       navigate("/my-orders");
     }

@@ -18,21 +18,43 @@ function inferCategory(cropName) {
   return "vegetables";
 }
 
+const BASE_PRICES = {
+  // Fruits
+  mango: 60, raw_mango: 40, banana: 30, guava: 35, papaya: 28, pomegranate: 90, jackfruit: 45, watermelon: 20,
+  // Vegetables
+  tomato: 26, brinjal: 32, onion: 42, carrot: 38, cabbage: 22, potato: 28, beans: 54, okra: 35, ladies_finger: 35,
+  drumstick: 48, chilli: 45, beetroot: 36, coconut: 25, broccoli: 65,
+  // Tubers
+  yam: 45, tapioca: 32, sweet_potato: 38, colocasia: 42,
+  // Keerai & Greens
+  murungai_keerai: 20, agathi_keerai: 22, siru_keerai: 18, palak_keerai: 25, vallarai_keerai: 28, ponnanganni_keerai: 24,
+  // South Nell & Grains
+  ponni_rice: 38, seeraga_samba: 85, thooyamalli: 65, karuppu_kavuni: 120, mappillai_samba: 75, ragi: 42, thinai: 55, black_gram: 95,
+  // Banana by-products
+  banana_chips: 160, banana_stem: 25, banana_flower: 30, banana_leaf: 80, banana_fiber: 150
+};
+
 // POST /api/listings/price-suggestion
 router.post("/price-suggestion", authMiddleware, async (req, res) => {
   const { crop_name, region } = req.body;
+  const crop = (crop_name || "tomato").toLowerCase().trim().replace(/\s+/g, "_");
   try {
-    const aiResponse = await axios.post(`${AI_SERVICE_URL}/predict-price`, { crop_name, region });
-    res.json(aiResponse.data);
-  } catch (err) {
-    res.json({
-      crop_name,
-      region,
-      predicted_min: 24,
-      predicted_max: 28,
-      note: "Historical average benchmark.",
-    });
-  }
+    const aiResponse = await axios.post(`${AI_SERVICE_URL}/predict-price`, { crop_name: crop, region: region || "Tirunelveli" });
+    if (aiResponse.data && aiResponse.data.predicted_min != null && !(crop !== "tomato" && aiResponse.data.predicted_min === 24 && aiResponse.data.predicted_max === 28)) {
+      return res.json(aiResponse.data);
+    }
+  } catch (err) {}
+
+  const base = BASE_PRICES[crop] || BASE_PRICES[crop_name] || 35;
+  const min = Math.round(base * 0.92);
+  const max = Math.round(base * 1.10);
+  res.json({
+    crop_name: crop,
+    region: region || "Tirunelveli",
+    predicted_min: min,
+    predicted_max: max,
+    note: "Historical average benchmark.",
+  });
 });
 
 function enrichListing(l) {

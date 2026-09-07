@@ -1,7 +1,7 @@
 // Uzhavan Connect — Intelligent Tamil & English Voice NLP Parser
 // Multi-dialect fuzzy recognition for colloquial farmer speech, numbers, and regional crops
 
-import { CROP_IMAGES, CROP_ICONS, getCropDisplayName } from "./agriData";
+import { CROP_IMAGES, CROP_ICONS, getCropDisplayName } from "./agriData.js";
 
 // Tamil number words mapping (supports colloquial slang like அஞ்சு, நாலு, அம்பது, நூத்தம்பது)
 const TAMIL_NUMBERS = {
@@ -434,8 +434,8 @@ export const CROPS_DICTIONARY = [
     ta: "மாம்பழம்",
     en: "Mango",
     aliases: [
-      "மாம்பழம்", "மாம்பழ", "சேலம் மாம்பழம்",
-      "mango", "alphonso", "mambalam"
+      "மாம்பழம்", "மாம்பழ", "மாம்பழங்கள்", "மாமரம்", "சேலம் மாம்பழம்", "அல்போன்சா", "பங்கனபள்ளி", "மல்கோவா",
+      "mango", "mangoes", "mangos", "alphonso", "mambalam", "mambazham", "mampalam", "maambazham", "maampazham", "maambalam"
     ],
     avgPrice: 60,
     icon: "🥭"
@@ -568,16 +568,29 @@ export function extractIntent(text) {
   if (!text) return "list_crop";
   const clean = text.toLowerCase();
 
-  // Price inquiry keywords
+  // Price inquiry keywords (Supports Tamil script, Tanglish, and English)
   if (
     clean.includes("விலை") || 
     clean.includes("ரேட்") || 
+    clean.includes("ரேட்டு") || 
     clean.includes("எவ்வளவு") || 
     clean.includes("எவ்ளோ") || 
+    clean.includes("எவளவு") || 
+    clean.includes("எவ்ளவு") || 
     clean.includes("விலை என்ன") || 
+    clean.includes("விவரம்") || 
+    clean.includes("நிலவரம்") || 
     clean.includes("price") || 
+    clean.includes("prize") || 
     clean.includes("rate") || 
-    clean.includes("cost")
+    clean.includes("rate enna") || 
+    clean.includes("cost") || 
+    clean.includes("evlo") || 
+    clean.includes("evalavu") || 
+    clean.includes("how much") || 
+    clean.includes("ketan") || 
+    clean.includes("sollunga") || 
+    clean.includes("theriyuma")
   ) {
     return "check_price";
   }

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import api from "../api";
 import { useApp } from "../context/AppContext";
-import { CROP_ICONS } from "../utils/agriData";
+import { CROP_ICONS, ALL_SUPPORTED_CROPS, getCropDisplayName } from "../utils/agriData";
 import { 
   TrendingUp, 
   Calendar, 
@@ -13,41 +14,30 @@ import {
   Clock 
 } from "lucide-react";
 
-const CROPS = [
-  { id: "tomato", name: "Tomato (தக்காளி)" },
-  { id: "brinjal", name: "Brinjal (கத்தரிக்காய்)" },
-  { id: "broccoli", name: "Broccoli (பூக்கோசு)" },
-  { id: "onion", name: "Onion (வெங்காயம்)" },
-  { id: "carrot", name: "Carrot (கேரட்)" },
-  { id: "cabbage", name: "Cabbage (முட்டைகோஸ்)" },
-  { id: "potato", name: "Potato (உருளைக்கிழங்கு)" },
-  { id: "beans", name: "Beans (பீன்ஸ்)" },
-  { id: "okra", name: "Okra / Ladyfinger (வெண்டைக்காய்)" },
-  { id: "drumstick", name: "Drumstick (முருங்கைக்காய்)" },
-  { id: "chilli", name: "Chilli (பச்சை மிளகாய்)" },
-  { id: "beetroot", name: "Beetroot (பீட்ரூட்)" },
-  { id: "banana", name: "Banana (வாழைப்பழம்)" },
-  { id: "coconut", name: "Coconut (தேங்காய்)" },
-];
-
 const REGIONS = ["Tirunelveli", "Madurai", "Nagercoil", "Tuticorin", "Tenkasi"];
 
 export default function DemandForecast() {
+  const location = useLocation();
   const { lang, showToast } = useApp();
 
-  const [crop, setCrop] = useState("tomato");
-  const [region, setRegion] = useState("Tirunelveli");
+  const initialCrop = location.state?.crop_name || "mango";
+  const initialRegion = location.state?.region || "Tirunelveli";
+
+  const [crop, setCrop] = useState(initialCrop);
+  const [region, setRegion] = useState(initialRegion);
   const [forecast, setForecast] = useState(null);
   const [trend, setTrend] = useState("rising");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hoveredDay, setHoveredDay] = useState(null);
 
-  const fetchForecast = async () => {
+  const fetchForecast = async (targetCrop = crop, targetRegion = region) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get("/ai/demand-forecast", { params: { crop_name: crop, region } });
+      const res = await api.get("/ai/demand-forecast", { 
+        params: { crop_name: targetCrop, region: targetRegion } 
+      });
       setForecast(res.data.forecast);
       setTrend(res.data.trend || "rising");
     } catch (err) {
@@ -61,7 +51,7 @@ export default function DemandForecast() {
         const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
         return {
           date: d.toISOString().slice(0, 10),
-          predicted_demand_kg: Math.round(95 + (isWeekend ? 45 : 0) + Math.sin(i) * 18),
+          predicted_demand_kg: Math.round(180 + (isWeekend ? 50 : 0) + Math.sin(i) * 25),
         };
       });
       setForecast(mockForecast);
@@ -71,8 +61,12 @@ export default function DemandForecast() {
   };
 
   useEffect(() => {
-    fetchForecast();
-  }, [crop, region]);
+    const activeCrop = location.state?.crop_name || initialCrop;
+    const activeRegion = location.state?.region || initialRegion;
+    setCrop(activeCrop);
+    setRegion(activeRegion);
+    fetchForecast(activeCrop, activeRegion);
+  }, [location.state]);
 
   const maxDemand = forecast ? Math.max(...forecast.map((f) => f.predicted_demand_kg)) : 100;
   const totalDemand = forecast ? Math.round(forecast.reduce((sum, f) => sum + f.predicted_demand_kg, 0)) : 0;
@@ -107,7 +101,7 @@ export default function DemandForecast() {
           <div>
             <label>Select Crop</label>
             <select value={crop} onChange={(e) => setCrop(e.target.value)}>
-              {CROPS.map((c) => (
+              {ALL_SUPPORTED_CROPS.map((c) => (
                 <option key={c.id} value={c.id}>
                   {CROP_ICONS[c.id] || "🌱"} {c.name}
                 </option>
@@ -128,7 +122,7 @@ export default function DemandForecast() {
 
           <div>
             <button
-              onClick={fetchForecast}
+              onClick={() => fetchForecast(crop, region)}
               className="btn-primary"
               disabled={loading}
               style={{ width: "100%", padding: "12px" }}
@@ -177,7 +171,7 @@ export default function DemandForecast() {
         <div className="demand-chart-container">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <h2 style={{ fontSize: "1.2rem", fontWeight: "800", color: "#083320" }}>
-              Daily Demand Trajectory for {crop.toUpperCase()} in {region}
+              Daily Demand Trajectory for {getCropDisplayName(crop, lang).toUpperCase()} in {region}
             </h2>
             <span className="page-badge" style={{ background: "#e8f5e9", color: "#0f5132" }}>
               Peak Capacity: {Math.round(maxDemand)} kg/day
@@ -228,7 +222,7 @@ export default function DemandForecast() {
               <p style={{ fontSize: "0.88rem", color: "#78350f", marginTop: "4px" }}>
                 {peakDay ? (
                   <>
-                    Demand for <strong>{crop}</strong> in <strong>{region}</strong> peaks on <strong>{formatDate(peakDay.date)}</strong> ({Math.round(peakDay.predicted_demand_kg)} kg). 
+                    Demand for <strong>{getCropDisplayName(crop, lang)}</strong> in <strong>{region}</strong> peaks on <strong>{formatDate(peakDay.date)}</strong> ({Math.round(peakDay.predicted_demand_kg)} kg). 
                     To fetch Grade A+ freshness prices, harvest your produce the preceding evening and list it on Ullavan Connect by 6:00 AM!
                   </>
                 ) : (

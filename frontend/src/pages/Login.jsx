@@ -63,18 +63,44 @@ export default function Login() {
     <div style={{ maxWidth: "1180px", margin: "24px auto" }}>
       
       {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: "36px" }}>
+      <div style={{ textAlign: "center", marginBottom: "28px" }}>
         <span className="page-badge">
           <ShieldCheck size={14} color="#10b981" /> Role-Based Access Control · தனிப்பயன் உள்நுழைவு
         </span>
         <h1 className="page-title">
           {lang === "ta" ? "உழவன் கனெக்ட் உள்நுழைவு தளம்" : "Select Your Portal to Login"}
         </h1>
-        <p className="page-subtitle" style={{ margin: "0 auto", maxWidth: "680px" }}>
+        <p className="page-subtitle" style={{ margin: "0 auto 16px", maxWidth: "680px" }}>
           {lang === "ta"
             ? "உழவர்கள், நுகர்வோர் மற்றும் நிர்வாகிகளுக்கான பிரத்தியேக பாதுகாப்பு உள்நுழைவு பக்கங்கள்."
             : "Choose between dedicated portals tailored for Farmers, Consumer Buyers, and Platform Developer Admins."}
         </p>
+
+        {/* Highlighted New Account Registration Banner */}
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)", border: "1.5px solid #10b981", padding: "10px 22px", borderRadius: "30px", boxShadow: "0 4px 14px rgba(16, 185, 129, 0.15)" }}>
+          <span style={{ fontSize: "1.2rem" }}>✨</span>
+          <span style={{ fontSize: "0.9rem", color: "#065f46", fontWeight: "600" }}>
+            {lang === "ta" ? "புதிய உழவர் அல்லது நுகர்வோரா?" : "New Farmer or Buyer?"}
+          </span>
+          <Link 
+            to="/register" 
+            style={{ 
+              background: "#10b981", 
+              color: "#ffffff", 
+              fontWeight: "700", 
+              fontSize: "0.82rem", 
+              padding: "5px 14px", 
+              borderRadius: "20px", 
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px"
+            }}
+          >
+            <span>{lang === "ta" ? "1-வினாடி எளிதான பதிவு" : "Easy 1-Min Register"}</span>
+            <ArrowRight size={13} />
+          </Link>
+        </div>
       </div>
 
       {/* 3 Primary Role Cards Grid */}
