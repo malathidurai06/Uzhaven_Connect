@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
+
 // Unified API instance
-const api = axios.create({ baseURL: "/api" });
+const api = axios.create({ baseURL: API_BASE });
 
 // Request Interceptor: Attach current token
 api.interceptors.request.use(
@@ -30,7 +32,7 @@ api.interceptors.response.use(
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
           const userObj = JSON.parse(storedUser);
-          const refreshRes = await axios.post("/api/auth/demo-login", {
+          const refreshRes = await axios.post(`${API_BASE}/auth/demo-login`, {
             phone: userObj.phone || (userObj.role === "farmer" ? "9876543210" : "9876543220"),
             role: userObj.role,
           });
