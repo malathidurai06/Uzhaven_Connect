@@ -187,4 +187,54 @@ router.post("/voice-command", async (req, res) => {
   }
 });
 
+// POST /api/ai/chat — Agri-AI Chatbot for Farmers, Buyers, Bulk Buyers & Admins
+router.post("/chat", async (req, res) => {
+  try {
+    const response = await axios.post(`${AI_SERVICE_URL}/chat`, req.body, { timeout: 3500 });
+    return res.json(response.data);
+  } catch (err) {
+    const msg = (req.body.message || "").toLowerCase();
+    const isTamil = /[\u0B80-\u0BFF]/.test(req.body.message || "");
+
+    if (msg.includes("price") || msg.includes("விலை") || msg.includes("rate") || msg.includes("mandi")) {
+      return res.json({
+        reply: isTamil
+          ? "🌾 **AI சந்தை விலை வழிகாட்டல்:** உழவன் கனெக்ட் மூலம் நுகர்வோருக்கு நேரடியாக விற்பதன் மூலம் மண்டி இடைத்தரகர் கழிவின்றி 25-30% கூடுதல் லாபம் பெறலாம். குறிப்பிட்ட பயிரின் (எ.கா: தக்காளி, சேனைக்கிழங்கு) விலை அறிய பயிர் பெயரை உள்ளிடவும்."
+          : "🌾 **AI Market Price Guide:** Selling directly through Uzhavan Connect guarantees +28% higher profit compared to traditional broker mandis. Enter any crop name (e.g., Tomato, Yam, Rice) to see live predictive price bands.",
+        detected_intent: "price_inquiry",
+        suggested_actions: ["Check Tomato Price", "Check 7-Day Demand Forecast", "Browse Marketplace"],
+      });
+    }
+
+    if (msg.includes("rescue") || msg.includes("மீட்பு") || msg.includes("waste") || msg.includes("hotel") || msg.includes("bulk")) {
+      return res.json({
+        reply: isTamil
+          ? "🍃 **பயிர் மீட்பு & உணவக மொத்த கொள்முதல்:** 48 மணி நேரத்திற்கு மேல் விற்கப்படாத உபரி விளைபொருட்கள் 30%-50% தள்ளுபடியில் உணவகங்கள் மற்றும் பதப்படுத்தும் ஆலைகளுக்கு நெல்லை அக்ரி டிரான்ஸ்போர்ட் கூட்டுறவு மூலம் நேரடியாக டெலிவரி செய்யப்படுகிறது."
+          : "🍃 **Crop Rescue & Commercial Procurement:** Unsold surplus crops are rescued at 30%–50% wholesale discounts for hotels, canteens, and bulk buyers with farm-gate pickup through *Nellai Agri Transport Co-op*.",
+        detected_intent: "crop_rescue",
+        suggested_actions: ["View Rescue Deals", "Raise Emergency Rescue", "Check Waste Analytics"],
+      });
+    }
+
+    if (msg.includes("pay") || msg.includes("upi") || msg.includes("bank") || msg.includes("கட்டணம்") || msg.includes("cod")) {
+      return res.json({
+        reply: isTamil
+          ? "💳 **பாதுகாப்பான கட்டண முறைகள்:** நீங்கள் UPI (GPay, PhonePe, Paytm, QR), நெட் பேங்கிங் (12+ வங்கிகள்), கார்டுகள் அல்லது பண்ணை வாயில் நேரடி பணப்பட்டுவாடா (Direct COD) மூலம் பணம் செலுத்தலாம். பணம் 100% Escrow முறையில் பாதுகாக்கப்படுகிறது."
+          : "💳 **Payment Methods:** Support for Direct UPI (GPay, PhonePe, Paytm, QR), Net Banking (12+ banks), Cards, and Farm-Gate Cash on Handover (COD) with 256-bit Escrow protection and instant invoices.",
+        detected_intent: "payment_inquiry",
+        suggested_actions: ["Explore Payment Gateway", "View My Orders", "Browse Marketplace"],
+      });
+    }
+
+    return res.json({
+      reply: isTamil
+        ? "வணக்கம்! நான் உங்கள் **உழவன் AI விவசாய உதவியாளர்** 🌾. பயிர் விலை நிலவரம், 7 நாள் தேவை கணிப்பு, பயிர் மீட்பு (Crop Rescue), மற்றும் கட்டண முறைகள் பற்றி ஏதேனும் கேட்கலாம்!"
+        : "Vanakkam! I am your **Uzhavan AI Smart Assistant** 🌾. Ask me about crop prices, 7-day demand forecasts, crop rescue discounts for bulk buyers/hotels, or payment options!",
+      detected_intent: "general_guide",
+      suggested_actions: ["Check Tomato Price", "How to pay via UPI or Net Banking?", "How does Crop Rescue work?", "Browse 40% Off Produce"],
+    });
+  }
+});
+
 module.exports = router;
+

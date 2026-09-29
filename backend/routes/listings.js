@@ -81,7 +81,7 @@ router.get("/", (req, res) => {
   let query = `
     SELECT l.*, u.name as farmer_name, u.village as farmer_village, u.phone as farmer_phone
     FROM listings l JOIN users u ON l.farmer_id = u.id
-    WHERE l.status = 'active'
+    WHERE l.status IN ('active', 'rescued')
   `;
   const params = [];
 
@@ -139,7 +139,7 @@ router.get("/nearby", (req, res) => {
   const allActive = db.prepare(`
     SELECT l.*, u.name as farmer_name, u.village as farmer_village, u.phone as farmer_phone
     FROM listings l JOIN users u ON l.farmer_id = u.id
-    WHERE l.status = 'active'
+    WHERE l.status IN ('active', 'rescued')
   `).all();
 
   const nearby = allActive

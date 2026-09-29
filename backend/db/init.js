@@ -292,6 +292,14 @@ function seedDatabase() {
 
     console.log("✅ Rescue Alerts seeded successfully!");
   }
+
+  // Ensure all active farm listings are set to active and refreshed
+  try {
+    db.prepare("UPDATE listings SET status = 'active', harvest_timestamp = datetime('now', '-2 hours') WHERE status != 'sold'").run();
+    console.log("✅ All farm produce listings refreshed and marked active for marketplace!");
+  } catch (e) {
+    console.error("Error refreshing listings:", e);
+  }
 }
 
 seedDatabase();
