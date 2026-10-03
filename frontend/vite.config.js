@@ -5,10 +5,19 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    // During development, forward API calls to the backend so the frontend
-    // code never needs to know the backend's port.
     proxy: {
       "/api": "http://localhost:5000",
     },
   },
+  build: {
+    chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          icons: ["lucide-react"]
+        }
+      }
+    }
+  }
 });
