@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 import { useApp } from "../context/AppContext";
+import VoiceInputField from "../components/VoiceInputField";
+import SmartFormVoiceAssistant from "../components/SmartFormVoiceAssistant";
 import { 
   Sprout, 
   ShoppingBag, 
@@ -353,140 +355,119 @@ export default function RegisterGateway() {
           </div>
         )}
 
-        {/* Quick Registration Form */}
+        {/* 🎙️ Smart Form Voice Assistant Bar */}
+        <SmartFormVoiceAssistant 
+          onFormPopulate={(voiceData) => setForm((prev) => ({ ...prev, ...voiceData }))}
+          activeRole={activeRole}
+        />
+
+        {/* Quick Registration Form with Integrated Voice Inputs */}
         <form onSubmit={handleQuickRegister}>
           
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
-            <div>
-              <label style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: "700", fontSize: "0.86rem", marginBottom: "6px", color: "#1e293b" }}>
-                <User size={14} color="#059669" />
-                {activeRole === "farmer" 
-                  ? (lang === "ta" ? "1. உழவர் முழு பெயர் *" : "1. Farmer Full Name *")
-                  : activeRole === "buyer"
-                  ? (lang === "ta" ? "1. நுகர்வோர் முழு பெயர் *" : "1. Buyer Full Name *")
-                  : (lang === "ta" ? "1. நிறுவனம் / ஹோட்டல் பெயர் *" : "1. Business Name *")}
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder={activeRole === "farmer" ? "எ.கா: மு. முத்து முருகன்" : activeRole === "buyer" ? "எ.கா: பிரியா சங்கர்" : "எ.கா: ஹோட்டல் ராயல் ரெசிடென்சி"}
-                required
-                style={{ width: "100%", padding: "11px 14px", borderRadius: "8px", border: "1.5px solid #cbd5e1", fontSize: "0.95rem" }}
-              />
-            </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <VoiceInputField
+              icon={User}
+              label={activeRole === "farmer" 
+                ? (lang === "ta" ? "1. உழவர் முழு பெயர் *" : "1. Farmer Full Name *")
+                : activeRole === "buyer"
+                ? (lang === "ta" ? "1. நுகர்வோர் முழு பெயர் *" : "1. Buyer Full Name *")
+                : (lang === "ta" ? "1. நிறுவனம் / ஹோட்டல் பெயர் *" : "1. Business Name *")}
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              placeholder={activeRole === "farmer" ? "எ.கா: மு. முத்து முருகன்" : activeRole === "buyer" ? "எ.கா: பிரியா சங்கர்" : "எ.கா: ஹோட்டல் ராயல் ரெசிடென்சி"}
+              voiceType="text"
+              voiceHint={activeRole === "farmer" ? "முத்து முருகன்" : "பிரியா சங்கர்"}
+              required
+            />
 
-            <div>
-              <label style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: "700", fontSize: "0.86rem", marginBottom: "6px", color: "#1e293b" }}>
-                <Phone size={14} color="#059669" />
-                {lang === "ta" ? "2. கைபேசி எண் (Mobile) *" : "2. Mobile Number *"}
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                placeholder="எ.கா: 9842145678"
-                required
-                style={{ width: "100%", padding: "11px 14px", borderRadius: "8px", border: "1.5px solid #cbd5e1", fontSize: "0.95rem" }}
-              />
-            </div>
+            <VoiceInputField
+              icon={Phone}
+              label={lang === "ta" ? "2. கைபேசி எண் (Mobile) *" : "2. Mobile Number *"}
+              type="tel"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              placeholder="எ.கா: 9842145678"
+              voiceType="phone"
+              voiceHint="9842175151"
+              required
+            />
           </div>
 
           {/* Location & GPS Detection */}
-          <div style={{ marginBottom: "16px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: "700", fontSize: "0.86rem", color: "#1e293b", margin: 0 }}>
-                <MapPin size={14} color="#059669" />
-                {lang === "ta" ? "3. கிராமம் / மாவட்டம் (Village / District) *" : "3. Village / District *"}
-              </label>
+          <VoiceInputField
+            icon={MapPin}
+            label={lang === "ta" ? "3. கிராமம் / மாவட்டம் (Village / District) *" : "3. Village / District *"}
+            name="village"
+            value={form.village}
+            onChange={handleChange}
+            placeholder="எ.கா: ஆலங்குளம், தென்காசி"
+            voiceType="text"
+            voiceHint="பொள்ளாச்சி அல்லது தென்காசி"
+            required
+            extraAction={
               <button
                 type="button"
                 onClick={handleDetectLocation}
                 style={{ background: "none", border: "none", color: "#059669", fontSize: "0.8rem", fontWeight: "700", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px" }}
               >
-                <Compass size={13} /> {lang === "ta" ? "📍 எனது இருப்பிடத்தை கண்டறி" : "📍 Auto Detect GPS"}
+                <Compass size={13} /> {lang === "ta" ? "📍 எனது இருப்பிடம்" : "📍 Auto Detect GPS"}
               </button>
-            </div>
-            <input
-              type="text"
-              name="village"
-              value={form.village}
-              onChange={handleChange}
-              placeholder="எ.கா: ஆலங்குளம், தென்காசி"
-              required
-              style={{ width: "100%", padding: "11px 14px", borderRadius: "8px", border: "1.5px solid #cbd5e1", fontSize: "0.95rem", marginBottom: "8px" }}
-            />
-            {/* Quick District Badges */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center" }}>
-              <span style={{ fontSize: "0.75rem", color: "#64748b" }}>{lang === "ta" ? "விரைவு தேர்வு:" : "Quick Select:"}</span>
-              {TAMIL_DISTRICTS.map((dist) => (
-                <button
-                  key={dist}
-                  type="button"
-                  onClick={() => setForm({ ...form, village: dist })}
-                  style={{
-                    fontSize: "0.74rem",
-                    padding: "3px 8px",
-                    borderRadius: "6px",
-                    border: "1px solid #cbd5e1",
-                    background: form.village === dist ? "#d1fae5" : "#f8fafc",
-                    color: form.village === dist ? "#065f46" : "#475569",
-                    cursor: "pointer"
-                  }}
-                >
-                  {dist.split(",")[0]}
-                </button>
-              ))}
-            </div>
+            }
+          />
+
+          {/* Quick District Badges */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center", marginTop: "-8px", marginBottom: "16px" }}>
+            <span style={{ fontSize: "0.75rem", color: "#64748b" }}>{lang === "ta" ? "விரைவு தேர்வு:" : "Quick Select:"}</span>
+            {TAMIL_DISTRICTS.map((dist) => (
+              <button
+                key={dist}
+                type="button"
+                onClick={() => setForm({ ...form, village: dist })}
+                style={{
+                  fontSize: "0.74rem",
+                  padding: "3px 8px",
+                  borderRadius: "6px",
+                  border: "1px solid #cbd5e1",
+                  background: form.village === dist ? "#d1fae5" : "#f8fafc",
+                  color: form.village === dist ? "#065f46" : "#475569",
+                  cursor: "pointer"
+                }}
+              >
+                {dist.split(",")[0]}
+              </button>
+            ))}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "16px", marginBottom: "20px" }}>
-            <div>
-              <label style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: "700", fontSize: "0.86rem", marginBottom: "6px", color: "#1e293b" }}>
-                <Sprout size={14} color="#059669" />
-                {activeRole === "farmer" 
-                  ? (lang === "ta" ? "4. முக்கிய விளைபொருட்கள் & நில அளவு" : "4. Main Crops & Land Size")
-                  : activeRole === "buyer"
-                  ? (lang === "ta" ? "4. விருப்பங்கள் / முகவரி" : "4. Delivery Area / Address")
-                  : (lang === "ta" ? "4. தினசரி தேவை அளவு (kg/day)" : "4. Daily Demand Volume")}
-              </label>
-              <input
-                type="text"
-                name="extra_info"
-                value={form.extra_info}
-                onChange={handleChange}
-                placeholder={activeRole === "farmer" ? "தக்காளி, வெங்காயம் (3 ஏக்கர்)" : activeRole === "buyer" ? "தினசரி காய்கறி, தெற்கு ரத வீதி" : "150 kg/day"}
-                style={{ width: "100%", padding: "11px 14px", borderRadius: "8px", border: "1.5px solid #cbd5e1", fontSize: "0.95rem" }}
-              />
-            </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "16px", marginBottom: "12px" }}>
+            <VoiceInputField
+              icon={Sprout}
+              label={activeRole === "farmer" 
+                ? (lang === "ta" ? "4. விளைபொருட்கள் & நில அளவு" : "4. Main Crops & Land")
+                : activeRole === "buyer"
+                ? (lang === "ta" ? "4. விருப்பங்கள் / முகவரி" : "4. Delivery Area")
+                : (lang === "ta" ? "4. தினசரி தேவை அளவு (kg/day)" : "4. Daily Demand Volume")}
+              name="extra_info"
+              value={form.extra_info}
+              onChange={handleChange}
+              placeholder={activeRole === "farmer" ? "தக்காளி, வெங்காயம் (3 ஏக்கர்)" : activeRole === "buyer" ? "தினசரி காய்கறி, தெற்கு ரத வீதி" : "150 kg/day"}
+              voiceType="text"
+              voiceHint="தக்காளி 3 ஏக்கர்"
+            />
 
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: "700", fontSize: "0.86rem", color: "#1e293b", margin: 0 }}>
-                  <Lock size={14} color="#059669" />
-                  {lang === "ta" ? "5. கடவுச்சொல் / பின் *" : "5. Password / PIN *"}
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "0.75rem" }}
-                >
-                  {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
-                  <span>{showPassword ? "மறைக்க" : "காட்ட"}</span>
-                </button>
-              </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="எ.கா: 1234 அல்லது pass123"
-                required
-                style={{ width: "100%", padding: "11px 14px", borderRadius: "8px", border: "1.5px solid #cbd5e1", fontSize: "0.95rem" }}
-              />
-            </div>
+            <VoiceInputField
+              icon={Lock}
+              label={lang === "ta" ? "5. கடவுச்சொல் / பின் *" : "5. Password / PIN *"}
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="எ.கா: 1234 அல்லது pass123"
+              voiceType="pin"
+              voiceHint="1234"
+              required
+            />
           </div>
 
           {/* Submit Button */}

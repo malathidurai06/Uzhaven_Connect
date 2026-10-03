@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 import { useApp } from "../context/AppContext";
+import VoiceInputField from "../components/VoiceInputField";
 import { 
   Building2, 
   ShieldCheck, 
@@ -136,45 +137,55 @@ export default function BulkBuyerLogin() {
         <form onSubmit={handleSubmit}>
           {mode === "register" && (
             <>
-              <label>ஹோட்டல் / நிறுவனத்தின் பெயர் (Business / Hotel Name)</label>
-              <input
-                type="text"
+              <VoiceInputField
+                icon={Building2}
+                label="ஹோட்டல் / நிறுவனத்தின் பெயர் (Business / Hotel Name)"
                 name="name"
                 value={form.name}
                 onChange={handleChange}
                 placeholder="எ.கா: ராயல் ரெசிடென்சி & மெஸ்"
+                voiceType="text"
+                voiceHint="ராயல் ரெசிடென்சி"
                 required
               />
 
-              <label>வணிக முகவரி (Business Address)</label>
-              <input
-                type="text"
+              <VoiceInputField
+                icon={Building2}
+                label="வணிக முகவரி (Business Address)"
                 name="village"
                 value={form.village}
                 onChange={handleChange}
                 placeholder="எ.கா: வண்ணாரப்பேட்டை, திருநெல்வேலி"
+                voiceType="text"
+                voiceHint="திருநெல்வேலி"
                 required
               />
             </>
           )}
 
-          <label>தொலைபேசி எண் (Mobile / Contact Number)</label>
-          <input
+          <VoiceInputField
+            icon={Phone}
+            label="தொலைபேசி எண் (Mobile / Contact Number)"
             type="tel"
             name="phone"
             value={form.phone}
             onChange={handleChange}
             placeholder="9876543230"
+            voiceType="phone"
+            voiceHint="9876543230"
             required
           />
 
-          <label>கடவுச்சொல் (Password)</label>
-          <input
+          <VoiceInputField
+            icon={Lock}
+            label="கடவுச்சொல் (Password)"
             type="password"
             name="password"
             value={form.password}
             onChange={handleChange}
             placeholder="••••••••"
+            voiceType="pin"
+            voiceHint="demo123"
             required
           />
 

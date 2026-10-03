@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 import { useApp } from "../context/AppContext";
+import VoiceInputField from "../components/VoiceInputField";
 import { 
   ShieldCheck, 
   Terminal, 
@@ -109,21 +110,30 @@ export default function AdminLogin() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <label>Admin Username / Phone Number</label>
-          <input
-            type="text"
+          <VoiceInputField
+            icon={UserCheck}
+            label="Admin Username / Phone Number"
+            name="phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            onVoiceChange={(val) => setPhone(val)}
             placeholder="9999999999"
+            voiceType="phone"
+            voiceHint="9999999999"
             required
           />
 
-          <label>Admin Password</label>
-          <input
+          <VoiceInputField
+            icon={Lock}
+            label="Admin Password"
             type="password"
+            name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onVoiceChange={(val) => setPassword(val)}
             placeholder="••••••••"
+            voiceType="pin"
+            voiceHint="admin123"
             required
           />
 

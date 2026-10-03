@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 import { useApp } from "../context/AppContext";
+import VoiceInputField from "../components/VoiceInputField";
 import { 
   ShoppingBag, 
   ShieldCheck, 
@@ -136,45 +137,55 @@ export default function BuyerLogin() {
         <form onSubmit={handleSubmit}>
           {mode === "register" && (
             <>
-              <label>முழு பெயர் (Full Name)</label>
-              <input
-                type="text"
+              <VoiceInputField
+                icon={User}
+                label="முழு பெயர் (Full Name)"
                 name="name"
                 value={form.name}
                 onChange={handleChange}
                 placeholder="எ.கா: பிரியா எஸ்."
+                voiceType="text"
+                voiceHint="பிரியா சங்கர்"
                 required
               />
 
-              <label>பகுதி / முகவரி (Locality / Town)</label>
-              <input
-                type="text"
+              <VoiceInputField
+                icon={MapPin}
+                label="பகுதி / முகவரி (Locality / Town)"
                 name="village"
                 value={form.village}
                 onChange={handleChange}
                 placeholder="எ.கா: திருநெல்வேலி நகரம்"
+                voiceType="text"
+                voiceHint="திருநெல்வேலி"
                 required
               />
             </>
           )}
 
-          <label>தொலைபேசி எண் (Mobile Number)</label>
-          <input
+          <VoiceInputField
+            icon={Phone}
+            label="தொலைபேசி எண் (Mobile Number)"
             type="tel"
             name="phone"
             value={form.phone}
             onChange={handleChange}
             placeholder="9876543220"
+            voiceType="phone"
+            voiceHint="9876543220"
             required
           />
 
-          <label>கடவுச்சொல் (Password)</label>
-          <input
+          <VoiceInputField
+            icon={Lock}
+            label="கடவுச்சொல் (Password)"
             type="password"
             name="password"
             value={form.password}
             onChange={handleChange}
             placeholder="••••••••"
+            voiceType="pin"
+            voiceHint="demo123"
             required
           />
 

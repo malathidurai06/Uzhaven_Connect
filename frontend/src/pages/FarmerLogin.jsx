@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 import { useApp } from "../context/AppContext";
+import VoiceInputField from "../components/VoiceInputField";
 import { 
   Sprout, 
   ShieldCheck, 
@@ -136,45 +137,55 @@ export default function FarmerLogin() {
         <form onSubmit={handleSubmit}>
           {mode === "register" && (
             <>
-              <label>உழவர் முழு பெயர் (Farmer Name)</label>
-              <input
-                type="text"
+              <VoiceInputField
+                icon={User}
+                label="உழவர் முழு பெயர் (Farmer Name)"
                 name="name"
                 value={form.name}
                 onChange={handleChange}
                 placeholder="எ.கா: மு. முருகன்"
+                voiceType="text"
+                voiceHint="முத்து முருகன்"
                 required
               />
 
-              <label>கிராமம் / மாவட்டம் (Village / District)</label>
-              <input
-                type="text"
+              <VoiceInputField
+                icon={Sprout}
+                label="கிராமம் / மாவட்டம் (Village / District)"
                 name="village"
                 value={form.village}
                 onChange={handleChange}
                 placeholder="எ.கா: ஆலங்குளம், திருநெல்வேலி"
+                voiceType="text"
+                voiceHint="ஆலங்குளம்"
                 required
               />
             </>
           )}
 
-          <label>தொலைபேசி எண் (Mobile Number)</label>
-          <input
+          <VoiceInputField
+            icon={Phone}
+            label="தொலைபேசி எண் (Mobile Number)"
             type="tel"
             name="phone"
             value={form.phone}
             onChange={handleChange}
             placeholder="9876543210"
+            voiceType="phone"
+            voiceHint="9876543210"
             required
           />
 
-          <label>கடவுச்சொல் (Password)</label>
-          <input
+          <VoiceInputField
+            icon={Lock}
+            label="கடவுச்சொல் (Password)"
             type="password"
             name="password"
             value={form.password}
             onChange={handleChange}
             placeholder="••••••••"
+            voiceType="pin"
+            voiceHint="demo123"
             required
           />
 
