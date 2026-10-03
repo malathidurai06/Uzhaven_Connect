@@ -35,8 +35,20 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PRICE_MODEL_PATH = os.path.join(BASE_DIR, "models", "price_model.joblib")
 DEMAND_MODEL_PATH = os.path.join(BASE_DIR, "models", "demand_model.joblib")
 
-price_bundle = joblib.load(PRICE_MODEL_PATH) if os.path.exists(PRICE_MODEL_PATH) else None
-demand_bundle = joblib.load(DEMAND_MODEL_PATH) if os.path.exists(DEMAND_MODEL_PATH) else None
+price_bundle = None
+if os.path.exists(PRICE_MODEL_PATH):
+    try:
+        price_bundle = joblib.load(PRICE_MODEL_PATH)
+    except Exception as e:
+        print(f"Warning: Could not load price model bundle: {e}")
+
+demand_bundle = None
+if os.path.exists(DEMAND_MODEL_PATH):
+    try:
+        demand_bundle = joblib.load(DEMAND_MODEL_PATH)
+    except Exception as e:
+        print(f"Warning: Could not load demand model bundle: {e}")
+
 
 
 class PriceRequest(BaseModel):
